@@ -1,0 +1,186 @@
+# XBMC Media Center language file
+# Addon Name: TVShow Time
+# Addon id: script.tvshowtime
+# Addon version: 1.0.7
+# Addon Provider: CXII
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: 2015-01-22 17:14+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgctxt "Addon Summary"
+msgid "TVShow Time"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "Automatically set episodes as watched on TVShowTime.com"
+msgstr ""
+
+msgctxt "#32001"
+msgid "General"
+msgstr ""
+
+msgctxt "#32301"
+msgid "User"
+msgstr ""
+
+msgctxt "#32302"
+msgid "Login / logout"
+msgstr ""
+
+msgctxt "#32303"
+msgid "Save watched episode's progress"
+msgstr ""
+
+msgctxt "#33001"
+msgid "Notifications"
+msgstr ""
+
+msgctxt "#33301"
+msgid "Show notifications"
+msgstr ""
+
+msgctxt "#33302"
+msgid "Say welcome"
+msgstr ""
+
+msgctxt "#33303"
+msgid "Show during playback"
+msgstr ""
+
+msgctxt "#33304"
+msgid "Show notification on scrobble"
+msgstr ""
+
+msgctxt "#34001"
+msgid "Social networks"
+msgstr ""
+
+msgctxt "#34301"
+msgid "Publish on Facebook"
+msgstr ""
+
+msgctxt "#34302"
+msgid "Publish on Twitter"
+msgstr ""
+
+msgctxt "#35001"
+msgid "Emotions"
+msgstr ""
+
+msgctxt "#35301"
+msgid "Set Emotion after watching"
+msgstr ""
+
+msgctxt "#35302"
+msgid "Default Emotion"
+msgstr ""
+
+msgctxt "#32901"
+msgid "Please login"
+msgstr ""
+
+msgctxt "#32902"
+msgid "Welcome"
+msgstr ""
+
+msgctxt "#32903"
+msgid "Error - Please check your authentication informations"
+msgstr ""
+
+msgctxt "#32904"
+msgid "Watching"
+msgstr ""
+
+msgctxt "#32905"
+msgid "Episode not found"
+msgstr ""
+
+msgctxt "#32906"
+msgid "Watched"
+msgstr ""
+
+msgctxt "#32907"
+msgid "Error 32907"
+msgstr ""
+
+msgctxt "#32908"
+msgid "Unwatched"
+msgstr ""
+
+msgctxt "#33801"
+msgid "Login"
+msgstr ""
+
+msgctxt "#33802"
+msgid "Logout"
+msgstr ""
+
+msgctxt "#33803"
+msgid "Synchronization"
+msgstr ""
+
+msgctxt "#33804"
+msgid "Error 33804"
+msgstr ""
+
+msgctxt "#33805"
+msgid "Logout ?"
+msgstr ""
+
+msgctxt "#33806"
+msgid "Go to"
+msgstr ""
+
+msgctxt "#33807"
+msgid "Enter the code"
+msgstr ""
+
+msgctxt "#33808"
+msgid "You can now use TVShow Time Add-on"
+msgstr ""
+
+msgctxt "#33809"
+msgid "Awaiting authorization"
+msgstr ""
+
+msgctxt "#33901"
+msgid "In which way ?"
+msgstr ""
+
+msgctxt "#33902"
+msgid "Whole TVShows"
+msgstr ""
+
+msgctxt "#33903"
+msgid "What sync ?"
+msgstr ""
+
+msgctxt "#33904"
+msgid "Whole Seasons"
+msgstr ""
+
+msgctxt "#33905"
+msgid "What season ?"
+msgstr ""
+
+msgctxt "#33906"
+msgid "Initialising"
+msgstr ""
+
+msgctxt "#33907"
+msgid "Finished"
+msgstr ""
+
+msgctxt "#33908"
+msgid "Sleep 60 secs."
+msgstr ""

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="32001">
+	   <setting id="token" type="text" label="token" default="" visible="false" />
+	   <setting id="user" type="text" label="32301" enable="false" />
+	   <setting id="progress" type="bool" label="32303" default="true" />
+	</category>
+	<category label="33001">  
+	   <setting id="notifications" type="bool" label="33301" default="true" />
+	   <setting id="welcome" type="bool" label="33302" default="true" enable="eq(-1,true)" visible="eq(-1,true)" />
+	   <setting id="notif_during_playback" type="bool" label="33303" default="true" enable="eq(-2,true)" visible="eq(-2,true)" />
+	   <setting id="notif_scrobbling" type="bool" label="33304" default="true" enable="eq(-3,true)" visible="eq(-3,true)" />
+	</category>
+	<category label="34001">  	
+	   <setting id="facebook" type="bool" label="34301" default="true" />
+	   <setting id="twitter" type="bool" label="34302" default="true" />
+	</category>
+	<category label="35001"> 
+	   <setting id="emotion" type="bool" label="35301" default="true" />
+	   <setting id="defaultemition" type="slider" label="35302" range="0,5" default="0" option="int" />
+	</category>
+</settings>
