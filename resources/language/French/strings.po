@@ -34,10 +34,6 @@ msgid "User"
 msgstr "Utilisateur"
 
 msgctxt "#32302"
-msgid "Login / logout"
-msgstr "Se connecter / Se déconnecter"
-
-msgctxt "#32303"
 msgid "Save watched episode's progress"
 msgstr "Sauver votre progression sur un épisode"
 

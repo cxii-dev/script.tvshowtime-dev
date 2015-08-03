@@ -1,6 +1,10 @@
+1.1.1
+change the way to sync entire db
+add the possibility to set Emotion after watching
+
 1.1.0
 change the way to scrobble using the unique id
-added the possibility to save watched episode's progress
+add the possibility to save watched episode's progress
 
 1.0.18
 change the start point for profiles' users - close #28

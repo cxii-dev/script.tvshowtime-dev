@@ -3,7 +3,7 @@
    <category label="32001">
 	   <setting id="token" type="text" label="token" default="" visible="false" />
 	   <setting id="user" type="text" label="32301" enable="false" />
-	   <setting id="progress" type="bool" label="32303" default="true" />
+	   <setting id="progress" type="bool" label="32302" default="true" />
 	</category>
 	<category label="33001">  
 	   <setting id="notifications" type="bool" label="33301" default="true" />
@@ -17,6 +17,6 @@
 	</category>
 	<category label="35001"> 
 	   <setting id="emotion" type="bool" label="35301" default="true" />
-	   <setting id="defaultemition" type="slider" label="35302" range="0,5" default="0" option="int" />
+	   <setting id="defaultemotion" type="enum" label="35302" lvalues="35311|35312|35313|35314|35316|35317" default="3" />
 	</category>
 </settings>

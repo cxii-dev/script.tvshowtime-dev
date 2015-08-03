@@ -17,6 +17,8 @@ from resources.lib.tvshowtime import IsChecked
 from resources.lib.tvshowtime import MarkAsWatched
 from resources.lib.tvshowtime import MarkAsUnWatched
 from resources.lib.tvshowtime import GetUserInformations
+from resources.lib.tvshowtime import SaveShowProgress
+from resources.lib.tvshowtime import Show
 
 __addon__         = xbmcaddon.Addon()
 __cwd__           = __addon__.getAddonInfo('path')
@@ -79,6 +81,8 @@ def Authorization(verification_url, user_code, device_code):
 def first_step():
     which_way = xbmcgui.Dialog().select(__language__(33901), ["TVShow Time > Kodi", "Kodi > TVShow Time"])
     if which_way < 0: return
+    scan(which_way)
+    return
     tvshows = []
     tvshowsid = []
     command = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"sort": { "order": "ascending", "method": "label" }}, "id": 1}'
@@ -116,69 +120,104 @@ def remove_duplicates(values):
             seen.add(value)
     return output
 
-def scan(way, whattvshow = 0, whatseason = 0):
-    if whattvshow == 0:
-        command = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": { "properties": ["season", "episode", "showtitle", "playcount", "tvshowid", "uniqueid"] }, "id": 1}'
-    elif whatseason == 0:
-        command = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params":{"tvshowid": %s, "properties": ["season", "episode", "showtitle", "playcount", "tvshowid", "uniqueid"]}, "id": 1}' % whattvshow
-    else:
-        command = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params":{"tvshowid": %s, "season": %s, "properties": ["season", "episode", "showtitle", "playcount", "tvshowid", "uniqueid"]}, "id": 1}' % (whattvshow, whatseason)
-        
-    if way == 0:
+def scan(way):
+    if way == 1:
         pDialog = xbmcgui.DialogProgressBG()
         pDialog.create('TVShow Time > Kodi', __language__(33906))
         pDialog.update(0, message=__language__(33906))
-        result = json.loads(xbmc.executeJSONRPC(command))  
-        total = result['result']['limits']['total']                                      
+        tvshowList = getTvshowList()
+        total = len(tvshowList)  
         for i in range(0, total):
-            filename = '%s.S%sE%s' % (formatName(result['result']['episodes'][i]['showtitle']), result['result']['episodes'][i]['season'], result['result']['episodes'][i]['episode'])
-            log('tvshowtitle=%s' % filename)
-            episode = IsChecked(__token__, result['result']['episodes'][i]['uniqueid']['unknown'])
-            if episode.is_found:
-                log("episode.is_found=%s" % episode.is_found)
-                if episode.is_watched == True: episode.is_watched = 1
-                else: episode.is_watched = 0
-                log("kodi.playcount=%s" % result['result']['episodes'][i]['playcount'])
-                log("tvst.playcount=%s" % episode.is_watched)
-                if result['result']['episodes'][i]['playcount'] <> episode.is_watched:
-                    log('TVST->Kodi (%s)' % episode.is_watched)
-                    command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (result['result']['episodes'][i]['episodeid'], episode.is_watched)
-                    result2 = json.loads(xbmc.executeJSONRPC(command2))
-            pDialog.update(((100/total)*(i+1)), message=filename)
+            log('SaveShowProgress(*, %s, %s, %s)' % (tvshowList[i]['show_id'], tvshowList[i]['season'], tvshowList[i]['episode']))
+            show_progress = SaveShowProgress(__token__, tvshowList[i]['show_id'], tvshowList[i]['season'], tvshowList[i]['episode'])
+            if show_progress.is_set:
+                log("tvshow=%s" % tvshowList[i]['title'])
+                log("show_progress.is_set=%s" % show_progress.is_set)
+            pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
             if ((i+1) % 30) == 0 and i < (total-1):
                 pDialog.update(((100/total)*(i+1)), message=__language__(33908))
                 xbmc.sleep(60000)
-        xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907)) 
-        pDialog.close() 
+        xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907))  
     else:
         pDialog = xbmcgui.DialogProgressBG()
         pDialog.create('Kodi > TVShow Time', __language__(33906))
         pDialog.update(0, message=__language__(33906))
-        result = json.loads(xbmc.executeJSONRPC(command))  
-        total = result['result']['limits']['total']                                      
+        tvshowList = getTvshowList()
+        total = len(tvshowList)                                   
         for i in range(0, total):
-            filename = '%s.S%sE%s' % (formatName(result['result']['episodes'][i]['showtitle']), result['result']['episodes'][i]['season'], result['result']['episodes'][i]['episode'])
-            log('tvshowtitle=%s' % filename)
-            #episode = IsChecked(__token__, result['result']['episodes'][i]['uniqueid']['unknown'])
-            #if episode.is_found:
-            #    log("episode.is_found=%s" % episode.is_found)
-            #    if episode.is_watched == True: episode.is_watched = 1
-            #    else: episode.is_watched = 0
-            log("kodi.playcount=%s" % result['result']['episodes'][i]['playcount'])
-            #    log("tvst.playcount=%s" % episode.is_watched)
-            #    if result['result']['episodes'][i]['playcount'] <> episode.is_watched:
-            log('Kodi->TVST (%s)' % result['result']['episodes'][i]['playcount'])
-            if result['result']['episodes'][i]['playcount'] == 1:
-                checkin = MarkAsWatched(__token__, result['result']['episodes'][i]['uniqueid']['unknown'], __facebook__, __twitter__)
-            else:
-                checkin = MarkAsUnWatched(__token__, result['result']['episodes'][i]['uniqueid']['unknown'])
-            pDialog.update(((100/total)*(i+1)), message=filename)
-            if ((i+1) % 30) == 0 and i < (total-1):
-                pDialog.update(((100/total)*(i+1)), message=__language__(33908))
-                xbmc.sleep(60000)
+            log('Show(*, %s)' % tvshowList[i]['show_id'])
+            show = Show(__token__, tvshowList[i]['show_id'])            
+            if show.is_found:
+                log('setTvshowProgress(*, %s, %s, %s)' % (show.id, show.last_season_seen, show.last_episode_seen))
+                tvshowProgress = setTvshowProgress(show.id, show.last_season_seen, show.last_episode_seen)
+                pDialog.update(((100/total)*(i+1)), message=show.showname)
+                if ((i+1) % 30) == 0 and i < (total-1):
+                    pDialog.update(((100/total)*(i+1)), message=__language__(33908))
+                    xbmc.sleep(60000)
         xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907)) 
-        pDialog.close() 
-
+    pDialog.close() 
+        
+def getTvshowList():
+    rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows', 'params': { 'properties': ['title', 'imdbnumber'] }, 'id': 'libTvShows'}
+    rpccmd = json.dumps(rpccmd)
+    result = xbmc.executeJSONRPC(rpccmd)
+    tvshows = json.loads(result)
+    tvshows = tvshows['result']['tvshows']
+    log('tvshows=%s' % tvshows)  
+    tvshowList = []
+    for tvshow in tvshows:
+        rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['title', 'season', 'episode']}, 'id': 1}
+        rpccmd = json.dumps(rpccmd)
+        result = xbmc.executeJSONRPC(rpccmd)
+        episodes = json.loads(result)  
+        episodes = episodes['result']['episodes']
+        lastEpisode = None
+        lastSeasonNr = 0
+        lastEpisodeNr = 0
+        for episode in episodes:
+            if (episode['season'] > lastSeasonNr):
+                lastSeasonNr = episode['season']
+                lastEpisodeNr = episode['episode']
+                lastEpisode = episode
+            elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
+                lastEpisodeNr = episode['episode']
+                lastEpisode = episode
+        if lastEpisode != None:
+            tvshowList.append({
+                'title': tvshow['title'],
+                'show_id': tvshow['imdbnumber'],
+                'season': lastEpisode['season'],
+                'episode': lastEpisode['episode']
+            })
+    log('list=%s' % tvshowList)
+    return tvshowList
+    
+def setTvshowProgress(show_id, last_season_seen, last_episode_seen):
+    rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows', 'params': { 'properties': ['title', 'imdbnumber'] }, 'id': 'libTvShows'}
+    rpccmd = json.dumps(rpccmd)
+    result = xbmc.executeJSONRPC(rpccmd)
+    tvshows = json.loads(result)
+    tvshows = tvshows['result']['tvshows']
+    log('tvshows=%s' % tvshows)
+    for tvshow in tvshows:
+        if int(tvshow['imdbnumber']) == int(show_id):
+            log('tvshow=%s' % tvshow)
+            rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['title', 'season', 'episode']}, 'id': 1}
+            rpccmd = json.dumps(rpccmd)
+            result = xbmc.executeJSONRPC(rpccmd)
+            episodes = json.loads(result)  
+            episodes = episodes['result']['episodes']
+            for episode in episodes:
+                log('episode=%s' % episode) 
+                if (episode['season'] <= last_season_seen and episode['episode'] <= last_episode_seen):               
+                    command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 1)
+                    result2 = json.loads(xbmc.executeJSONRPC(command2))
+                    log('watched=%s' % 1)
+                else:         
+                    command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 0)
+                    result2 = json.loads(xbmc.executeJSONRPC(command2))
+                    log('watched=%s' % 0)
+ 
 def formatNumber(number):
     if len(number) < 2:
          number = '0%s' % number

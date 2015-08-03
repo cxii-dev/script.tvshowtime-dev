@@ -34,10 +34,6 @@ msgid "User"
 msgstr ""
 
 msgctxt "#32302"
-msgid "Login / logout"
-msgstr ""
-
-msgctxt "#32303"
 msgid "Save watched episode's progress"
 msgstr ""
 
@@ -83,6 +79,30 @@ msgstr ""
 
 msgctxt "#35302"
 msgid "Default Emotion"
+msgstr ""
+
+msgctxt "#35311"
+msgid "Good"
+msgstr ""
+
+msgctxt "#35312"
+msgid "Funk"
+msgstr ""
+
+msgctxt "#35313"
+msgid "Wow"
+msgstr ""
+
+msgctxt "#35314"
+msgid "Sad"
+msgstr ""
+
+msgctxt "#35316"
+msgid "Soso"
+msgstr ""
+
+msgctxt "#35317"
+msgid "Bad"
 msgstr ""
 
 msgctxt "#32901"
@@ -138,7 +158,7 @@ msgid "Logout ?"
 msgstr ""
 
 msgctxt "#33806"
-msgid "Go to"
+msgid "TVShow Time Authorization"
 msgstr ""
 
 msgctxt "#33807"
@@ -183,4 +203,8 @@ msgstr ""
 
 msgctxt "#33908"
 msgid "Sleep 60 secs."
+msgstr ""
+
+msgctxt "#33909"
+msgid "Set Emotion"
 msgstr ""

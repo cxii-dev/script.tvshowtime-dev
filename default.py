@@ -27,6 +27,7 @@ from resources.lib.tvshowtime import MarkAsWatched
 from resources.lib.tvshowtime import MarkAsUnWatched
 from resources.lib.tvshowtime import GetUserInformations
 from resources.lib.tvshowtime import SaveProgress
+from resources.lib.tvshowtime import SetEmotion
 
 class Monitor(xbmc.Monitor):
     def __init__( self, *args, **kwargs ):
@@ -40,7 +41,7 @@ class Monitor(xbmc.Monitor):
     def _trackPosition(self):
         while self._playback_lock.isSet() and not xbmc.abortRequested:
             try:
-                self._last_pos = self.getTime()
+                self._last_pos = player.getTime()
             except:
                 self._playback_lock.clear()
             log('Inside Player. Tracker time = %s' % self._last_pos)
@@ -85,7 +86,7 @@ class Monitor(xbmc.Monitor):
                 log('episode=%s' % item['episode'])
                 log('episode_id=%s' % item['episode_id'])
                 if len(item['showtitle']) > 0 and item['season'] > 0 and item['episode'] > 0 and item['episode_id'] > 0:                   
-                    player.filename = '%s.S%sE%s' % (formatName(item['showtitle']), item['season'], item['episode'])
+                    player.filename = '%s.S%.2dE%.2d' % (formatName(item['showtitle']), float(item['season']), float(item['episode']))
                     log('tvshowtitle=%s' % player.filename)
                     player.episode = FindEpisode(player.token, item['episode_id'])
                     log('episode.is_found=%s' % player.episode.is_found)
@@ -123,8 +124,9 @@ class Monitor(xbmc.Monitor):
                     log('episode=%s' % item['episode'])
                     log('episode_id=%s' % item['episode_id'])
                     if len(item['showtitle']) > 0 and item['season'] > 0 and item['episode'] > 0 and item['episode_id'] > 0:                   
-                        player.filename = '%s.S%sE%s' % (formatName(item['showtitle']), item['season'], item['episode'])
+                        player.filename = '%s.S%.2dE%.2d' % (formatName(item['showtitle']), float(item['season']), float(item['episode']))
                         log('tvshowtitle=%s' % player.filename)
+                    log('progress=%s' % self._last_pos)
                     self.progress = SaveProgress(player.token, item['episode_id'], self._last_pos)   
                     log('progress.is_set:=%s' % self.progress.is_set)                                
         if (method == 'VideoLibrary.OnUpdate'):
@@ -142,7 +144,7 @@ class Monitor(xbmc.Monitor):
                 log('episode_id=%s' % item['episode_id'])
                 log('playcount=%s' % playcount)
                 if len(item['showtitle']) > 0 and item['season'] > 0 and item['episode'] > 0 and item['episode_id'] > 0:
-                    self.filename = '%s.S%sE%s' % (formatName(item['showtitle']), item['season'], item['episode'])
+                    self.filename = '%s.S%.2dE%.2d' % (formatName(item['showtitle']), float(item['season']), float(item['episode']))
                     log('tvshowtitle=%s' % self.filename)
                     self.episode = FindEpisode(player.token, item['episode_id'])
                     log('episode.is_found=%s' % self.episode.is_found)
@@ -152,6 +154,22 @@ class Monitor(xbmc.Monitor):
                             checkin = MarkAsWatched(player.token, item['episode_id'], player.facebook, player.twitter)
                             log('checkin.is_marked:=%s' % checkin.is_marked)
                             if checkin.is_marked:
+                                if player.emotion == 'true':
+                                    self.emotion = xbmcgui.Dialog().select('%s: %s' % (__language__(33909), self.filename), [__language__(35311), __language__(35312), __language__(35313), __language__(35314), __language__(35316), __language__(35317)])
+                                    if self.emotion < 0: return
+                                    if self.emotion == 0:
+                                        self.emotion = 1
+                                    elif self.emotion == 1:
+                                        self.emotion = 2
+                                    elif self.emotion == 2:
+                                        self.emotion = 3
+                                    elif self.emotion == 3:
+                                        self.emotion = 4
+                                    elif self.emotion == 4:
+                                        self.emotion = 6
+                                    elif self.emotion == 5:
+                                        self.emotion = 7
+                                    SetEmotion(player.token, item['episode_id'], self.emotion)
                                 if player.notifications == 'true':
                                     if player.notif_during_playback == 'false' and player.isPlaying() == 1:
                                         return
@@ -219,6 +237,8 @@ class Player(xbmc.Player):
         self.notif_during_playback = __addon__.getSetting('notif_during_playback')
         self.notif_scrobbling = __addon__.getSetting('notif_scrobbling')
         self.progress = __addon__.getSetting('progress')
+        self.emotion = __addon__.getSetting('emotion')
+        self.defaultemotion = __addon__.getSetting('defaultemotion')
         if self.token is '':
             log(__language__(32901))
             if self.notifications == 'true':
@@ -262,7 +282,7 @@ def notif(msg, time=5000):
 
 def log(msg):
     xbmc.log("### [%s] - %s" % (__scriptname__, encode(msg), ),
-            level=100) #100 #xbmc.LOGDEBUG
+            level=xbmc.LOGDEBUG) #100 #xbmc.LOGDEBUG
 
 def encode(string):
     result = ''
