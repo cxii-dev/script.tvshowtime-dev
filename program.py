@@ -122,8 +122,9 @@ def remove_duplicates(values):
 
 def scan(way):
     if way == 1:
+        log('Kodi > TVShow Time')  
         pDialog = xbmcgui.DialogProgressBG()
-        pDialog.create('TVShow Time > Kodi', __language__(33906))
+        pDialog.create('Kodi > TVShow Time', __language__(33906))
         pDialog.update(0, message=__language__(33906))
         tvshowList = getTvshowList()
         if tvshowList:  
@@ -140,8 +141,9 @@ def scan(way):
                     xbmc.sleep(60000)
         xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907))  
     else:
+        log('TVShow Time > Kodi') 
         pDialog = xbmcgui.DialogProgressBG()
-        pDialog.create('Kodi > TVShow Time', __language__(33906))
+        pDialog.create('TVShow Time > Kodi', __language__(33906))
         pDialog.update(0, message=__language__(33906))
         tvshowList = getTvshowList()
         if tvshowList:        
@@ -170,11 +172,12 @@ def getTvshowList():
     tvshows = tvshows['result']['tvshows']
     tvshowList = []
     for tvshow in tvshows:
-        rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['title', 'season', 'episode']}, 'id': 1}
+        rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode']}, 'id': 1}
         rpccmd = json.dumps(rpccmd)
         result = xbmc.executeJSONRPC(rpccmd)
         episodes = json.loads(result)
         log('episodes=%s' % episodes)  
+        log('total=%d' % episodes['result']['limits']['total'])  
         if episodes['result']['limits']['total'] == 0:
             return
         episodes = episodes['result']['episodes']
