@@ -152,7 +152,7 @@ def scan(way):
                 log('Show(*, %s)' % tvshowList[i]['show_id'])
                 show = Show(__token__, tvshowList[i]['show_id'])            
                 if show.is_found:
-                    log('setTvshowProgress(*, %s, %s, %s)' % (show.id, show.last_season_seen, show.last_episode_seen))
+                    log('setTvshowProgress(%s, %s, %s)' % (show.id, show.last_season_seen, show.last_episode_seen))
                     tvshowProgress = setTvshowProgress(show.id, show.last_season_seen, show.last_episode_seen)
                     pDialog.update(((100/total)*(i+1)), message=show.showname)
                     if ((i+1) % 30) == 0 and i < (total-1):
@@ -167,38 +167,35 @@ def getTvshowList():
     result = xbmc.executeJSONRPC(rpccmd)
     tvshows = json.loads(result)
     log('tvshows=%s' % tvshows)  
-    if tvshows['result']['limits']['total'] == 0:
-        return
-    tvshows = tvshows['result']['tvshows']
-    tvshowList = []
-    for tvshow in tvshows:
-        rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode']}, 'id': 1}
-        rpccmd = json.dumps(rpccmd)
-        result = xbmc.executeJSONRPC(rpccmd)
-        episodes = json.loads(result)
-        log('episodes=%s' % episodes)  
-        log('total=%d' % episodes['result']['limits']['total'])  
-        if episodes['result']['limits']['total'] == 0:
-            return
-        episodes = episodes['result']['episodes']
-        lastEpisode = None
-        lastSeasonNr = 0
-        lastEpisodeNr = 0
-        for episode in episodes:
-            if (episode['season'] > lastSeasonNr):
-                lastSeasonNr = episode['season']
-                lastEpisodeNr = episode['episode']
-                lastEpisode = episode
-            elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
-                lastEpisodeNr = episode['episode']
-                lastEpisode = episode
-        if lastEpisode != None:
-            tvshowList.append({
-                'title': tvshow['title'],
-                'show_id': tvshow['imdbnumber'],
-                'season': lastEpisode['season'],
-                'episode': lastEpisode['episode']
-            })
+    if tvshows.has_key('result') and tvshows['result'] != None and tvshows['result'].has_key('tvshows'):
+        tvshows = tvshows['result']['tvshows']
+        tvshowList = []
+        for tvshow in tvshows:
+            rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode']}, 'id': 1}
+            rpccmd = json.dumps(rpccmd)
+            result = xbmc.executeJSONRPC(rpccmd)
+            episodes = json.loads(result)
+            log('episodes=%s' % episodes) 
+            if episodes.has_key('result') and episodes['result'] != None and episodes['result'].has_key('episodes'):
+                episodes = episodes['result']['episodes']
+                lastEpisode = None
+                lastSeasonNr = 0
+                lastEpisodeNr = 0
+                for episode in episodes:
+                    if (episode['season'] > lastSeasonNr):
+                        lastSeasonNr = episode['season']
+                        lastEpisodeNr = episode['episode']
+                        lastEpisode = episode
+                    elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
+                        lastEpisodeNr = episode['episode']
+                        lastEpisode = episode
+                if lastEpisode != None:
+                    tvshowList.append({
+                        'title': tvshow['title'],
+                        'show_id': tvshow['imdbnumber'],
+                        'season': lastEpisode['season'],
+                        'episode': lastEpisode['episode']
+                    })
     log('list=%s' % tvshowList)
     return tvshowList
     
