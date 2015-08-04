@@ -136,27 +136,24 @@ def scan(way):
         if tvshowList:  
             total = len(tvshowList)  
             for i in range(0, total):
+                pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
                 if tvshowList[i]['seen'] == 1:
                     showsSeen.append({
                         'show_id': int(tvshowList[i]['show_id']),
                         'season': tvshowList[i]['season'],
                         'episode': tvshowList[i]['episode']
                     })
-                    pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
                 elif tvshowList[i]['seen'] == 0 and tvshowList[i]['season'] == 1 and tvshowList[i]['episode'] == 1:
                     showsNotSeen.append({
                         'show_id': int(tvshowList[i]['show_id'])
                     })
-                    pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
         if len(showsSeen):
             show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
             log("SaveShowsProgress(*, %s)" % json.dumps(showsSeen))
-            log("showsSeen=%s" % showsSeen)
             log("show_progress.is_set=%s" % show_progress.is_set)
         if len(showsNotSeen):
             show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
             log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
-            log("showsNotSeen=%s" % showsNotSeen)
             log("show_progress.is_delete=%s" % show_progress.is_delete)
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907))  
@@ -212,11 +209,11 @@ def getTvshowList():
                         elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
                             lastEpisodeNr = episode['episode']
                             lastEpisode = episode
-                    if (episode['season'] > lastSeasonNr):
+                    if (episode['season'] < firstSeasonNr):
                         firstSeasonNr = episode['season']
                         firstEpisodeNr = episode['episode']
                         firstEpisode = episode
-                    elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
+                    elif (episode['season'] == firstSeasonNr and episode['episode'] < firstEpisodeNr):
                         firstEpisodeNr = episode['episode']
                         firstEpisode = episode
                 if lastEpisode != None:
