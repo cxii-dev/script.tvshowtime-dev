@@ -137,6 +137,7 @@ def scan(way):
             total = len(tvshowList)  
             for i in range(0, total):
                 pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
+                xbmc.sleep(500)
                 if tvshowList[i]['seen'] == 1:
                     showsSeen.append({
                         'show_id': int(tvshowList[i]['show_id']),
@@ -147,13 +148,13 @@ def scan(way):
                     showsNotSeen.append({
                         'show_id': int(tvshowList[i]['show_id'])
                     })
-        if len(showsSeen):
-            show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+        if len(showsSeen):    
             log("SaveShowsProgress(*, %s)" % json.dumps(showsSeen))
+            show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
             log("show_progress.is_set=%s" % show_progress.is_set)
         if len(showsNotSeen):
-            show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
             log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
+            show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
             log("show_progress.is_delete=%s" % show_progress.is_delete)
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907))  
@@ -182,24 +183,25 @@ def getTvshowList():
     rpccmd = json.dumps(rpccmd)
     result = xbmc.executeJSONRPC(rpccmd)
     tvshows = json.loads(result)
-    log('tvshows=%s' % tvshows)  
+    #log('tvshows=%s' % tvshows)  
+    tvshowList = []
     if tvshows.has_key('result') and tvshows['result'] != None and tvshows['result'].has_key('tvshows'):
         tvshows = tvshows['result']['tvshows']
-        tvshowList = []
         for tvshow in tvshows:
             rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode', 'playcount']}, 'id': 1}
             rpccmd = json.dumps(rpccmd)
             result = xbmc.executeJSONRPC(rpccmd)
             episodes = json.loads(result)
-            log('episodes[%d]=%s' % (tvshow['tvshowid'], episodes)) 
+            log('tvshow=%s [%d]' % (tvshow['title'], int(tvshow['imdbnumber']))) 
+            #log('episodes[%d]=%s' % (tvshow['tvshowid'], episodes)) 
             if episodes.has_key('result') and episodes['result'] != None and episodes['result'].has_key('episodes'):
                 episodes = episodes['result']['episodes']
                 lastEpisode = None
                 lastSeasonNr = 0
                 lastEpisodeNr = 0
                 firstEpisode = None
-                firstSeasonNr = 0
-                firstEpisodeNr = 0
+                firstSeasonNr = 1
+                firstEpisodeNr = 1
                 for episode in episodes:
                     if episode['playcount'] == 1:
                         if (episode['season'] > lastSeasonNr):
@@ -209,7 +211,7 @@ def getTvshowList():
                         elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
                             lastEpisodeNr = episode['episode']
                             lastEpisode = episode
-                    if (episode['season'] < firstSeasonNr):
+                    if (episode['season'] <= firstSeasonNr):
                         firstSeasonNr = episode['season']
                         firstEpisodeNr = episode['episode']
                         firstEpisode = episode
@@ -224,6 +226,7 @@ def getTvshowList():
                         'season': lastEpisode['season'],
                         'episode': lastEpisode['episode']
                     })
+                    log('dernier_vu=s%.2de%.2d' % (int(lastEpisode['season']), int(lastEpisode['episode'])))
                 elif firstEpisode != None:
                     tvshowList.append({
                         'seen': 0,
@@ -232,6 +235,7 @@ def getTvshowList():
                         'season': firstEpisode['season'],
                         'episode': firstEpisode['episode']
                     })
+                    log('jamais_vu')
     log('list=%s' % tvshowList)
     return tvshowList
     
