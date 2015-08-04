@@ -18,7 +18,11 @@ from resources.lib.tvshowtime import MarkAsWatched
 from resources.lib.tvshowtime import MarkAsUnWatched
 from resources.lib.tvshowtime import GetUserInformations
 from resources.lib.tvshowtime import SaveShowProgress
+from resources.lib.tvshowtime import SaveShowsProgress
 from resources.lib.tvshowtime import Show
+from resources.lib.tvshowtime import GetLibrary
+from resources.lib.tvshowtime import DeleteShowProgress
+from resources.lib.tvshowtime import DeleteShowsProgress
 
 __addon__         = xbmcaddon.Addon()
 __cwd__           = __addon__.getAddonInfo('path')
@@ -127,38 +131,53 @@ def scan(way):
         pDialog.create('Kodi > TVShow Time', __language__(33906))
         pDialog.update(0, message=__language__(33906))
         tvshowList = getTvshowList()
+        showsSeen = []
+        showsNotSeen = []
         if tvshowList:  
             total = len(tvshowList)  
             for i in range(0, total):
-                log('SaveShowProgress(*, %s, %s, %s)' % (tvshowList[i]['show_id'], tvshowList[i]['season'], tvshowList[i]['episode']))
-                show_progress = SaveShowProgress(__token__, tvshowList[i]['show_id'], tvshowList[i]['season'], tvshowList[i]['episode'])
-                if show_progress.is_set:
-                    log("tvshow=%s" % tvshowList[i]['title'])
-                    log("show_progress.is_set=%s" % show_progress.is_set)
-                pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
-                if ((i+1) % 30) == 0 and i < (total-1):
-                    pDialog.update(((100/total)*(i+1)), message=__language__(33908))
-                    xbmc.sleep(60000)
-        xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907))  
+                if tvshowList[i]['seen'] == 1:
+                    showsSeen.append({
+                        'show_id': int(tvshowList[i]['show_id']),
+                        'season': tvshowList[i]['season'],
+                        'episode': tvshowList[i]['episode']
+                    })
+                    pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
+                elif tvshowList[i]['seen'] == 0 and tvshowList[i]['season'] == 1 and tvshowList[i]['episode'] == 1:
+                    showsNotSeen.append({
+                        'show_id': int(tvshowList[i]['show_id'])
+                    })
+                    pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
+        if len(showsSeen):
+            show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+            log("SaveShowsProgress(*, %s)" % json.dumps(showsSeen))
+            log("showsSeen=%s" % showsSeen)
+            log("show_progress.is_set=%s" % show_progress.is_set)
+        if len(showsNotSeen):
+            show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
+            log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
+            log("showsNotSeen=%s" % showsNotSeen)
+            log("show_progress.is_delete=%s" % show_progress.is_delete)
+        pDialog.update(100, message=__language__(33907))
+        xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907))  
     else:
         log('TVShow Time > Kodi') 
         pDialog = xbmcgui.DialogProgressBG()
         pDialog.create('TVShow Time > Kodi', __language__(33906))
         pDialog.update(0, message=__language__(33906))
         tvshowList = getTvshowList()
-        if tvshowList:        
+        tvshowTimeList = getTvshowTimeList()
+        if tvshowList and tvshowTimeList:        
             total = len(tvshowList)                                   
             for i in range(0, total):
-                log('Show(*, %s)' % tvshowList[i]['show_id'])
-                show = Show(__token__, tvshowList[i]['show_id'])            
-                if show.is_found:
-                    log('setTvshowProgress(%s, %s, %s)' % (show.id, show.last_season_seen, show.last_episode_seen))
-                    tvshowProgress = setTvshowProgress(show.id, show.last_season_seen, show.last_episode_seen)
-                    pDialog.update(((100/total)*(i+1)), message=show.showname)
-                    if ((i+1) % 30) == 0 and i < (total-1):
-                        pDialog.update(((100/total)*(i+1)), message=__language__(33908))
-                        xbmc.sleep(60000)
-        xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907)) 
+                for tvshowTime in tvshowTimeList:
+                    if tvshowList[i]['show_id'] == tvshowTime['show_id']:
+                        pDialog.update(((100/total)*(i+1)), message=tvshowTime['title'])
+                        log('setTvshowProgress(%s, %s, %s)' % (tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode']))
+                        tvshowProgress = setTvshowProgress(tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode'])
+                        return
+        pDialog.update(100, message=__language__(33907))
+        xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907)) 
     pDialog.close() 
         
 def getTvshowList():
@@ -171,7 +190,7 @@ def getTvshowList():
         tvshows = tvshows['result']['tvshows']
         tvshowList = []
         for tvshow in tvshows:
-            rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode']}, 'id': 1}
+            rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['season', 'episode', 'playcount']}, 'id': 1}
             rpccmd = json.dumps(rpccmd)
             result = xbmc.executeJSONRPC(rpccmd)
             episodes = json.loads(result)
@@ -181,23 +200,58 @@ def getTvshowList():
                 lastEpisode = None
                 lastSeasonNr = 0
                 lastEpisodeNr = 0
+                firstEpisode = None
+                firstSeasonNr = 0
+                firstEpisodeNr = 0
                 for episode in episodes:
+                    if episode['playcount'] == 1:
+                        if (episode['season'] > lastSeasonNr):
+                            lastSeasonNr = episode['season']
+                            lastEpisodeNr = episode['episode']
+                            lastEpisode = episode
+                        elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
+                            lastEpisodeNr = episode['episode']
+                            lastEpisode = episode
                     if (episode['season'] > lastSeasonNr):
-                        lastSeasonNr = episode['season']
-                        lastEpisodeNr = episode['episode']
-                        lastEpisode = episode
+                        firstSeasonNr = episode['season']
+                        firstEpisodeNr = episode['episode']
+                        firstEpisode = episode
                     elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
-                        lastEpisodeNr = episode['episode']
-                        lastEpisode = episode
+                        firstEpisodeNr = episode['episode']
+                        firstEpisode = episode
                 if lastEpisode != None:
                     tvshowList.append({
+                        'seen': 1,
                         'title': tvshow['title'],
                         'show_id': tvshow['imdbnumber'],
                         'season': lastEpisode['season'],
                         'episode': lastEpisode['episode']
                     })
+                elif firstEpisode != None:
+                    tvshowList.append({
+                        'seen': 0,
+                        'title': tvshow['title'],
+                        'show_id': tvshow['imdbnumber'],
+                        'season': firstEpisode['season'],
+                        'episode': firstEpisode['episode']
+                    })
     log('list=%s' % tvshowList)
     return tvshowList
+    
+def getTvshowTimeList():
+    tvshowTimeList = []
+    log('shows=Library(*, 0, 999999)')
+    shows = GetLibrary(__token__, 0, 999999)
+    for show in shows.shows:
+        if show['last_seen'] != None:
+            tvshowTimeList.append({
+                'title': show['name'],
+                'show_id': show['id'],
+                'season': show['last_seen']['season_number'],
+                'episode': show['last_seen']['number']
+            })
+    log('list=%s' % tvshowTimeList)
+    return tvshowTimeList
     
 def setTvshowProgress(show_id, last_season_seen, last_episode_seen):
     rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetTVShows', 'params': { 'properties': ['title', 'imdbnumber'] }, 'id': 'libTvShows'}

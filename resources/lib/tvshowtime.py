@@ -81,6 +81,41 @@ class Show(object):
            self.showname = data['show']['name']
            self.last_season_seen = data['show']['last_seen']['season_number']
            self.last_episode_seen = data['show']['last_seen']['number']
+                   
+class GetLibrary(object):
+    def __init__(self, token, page, limit):
+        self.token = token
+        self.page = page
+        self.limit = limit
+        self.action = 'library?access_token=%s&page=%s&limit=%s' % (self.token, self.page, self.limit)
+
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+           urllib2.HTTPRedirectHandler(),
+           urllib2.HTTPHandler(debuglevel=0),
+           urllib2.HTTPSHandler(debuglevel=0),
+           urllib2.HTTPCookieProcessor(self.cj)
+        )
+
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+
+        self.opener.get_method = lambda: 'GET'
+        
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, None)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_found = False
+        else:
+           self.is_found = True
+           self.resultdata = data['result']
+           self.shows = data['shows']
            
 class IsChecked(object):
     def __init__(self, token, episode_id):
@@ -268,6 +303,115 @@ class SaveShowProgress(object):
            self.is_set = False
         else:
            self.is_set = True
+           
+class SaveShowsProgress(object):
+    def __init__(self, token, shows):
+        self.token = token
+        self.shows = shows
+        self.action = 'show_progress'
+        request_data = urllib.urlencode({
+            'access_token' : self.token,
+            'shows' : self.shows
+            })
+        
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+            urllib2.HTTPRedirectHandler(),
+            urllib2.HTTPHandler(debuglevel=0),
+            urllib2.HTTPSHandler(debuglevel=0),
+            urllib2.HTTPCookieProcessor(self.cj)
+        )
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+                           
+        self.opener.get_method = lambda: 'POST'
+             
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, request_data)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_set = False
+        else:
+           self.is_set = True
+               
+class DeleteShowProgress(object):
+    def __init__(self, token, show_id):
+        self.token = token
+        self.show_id = show_id
+        self.action = 'delete_show_progress'
+        request_data = urllib.urlencode({
+            'access_token' : self.token,
+            'show_id' : self.show_id
+            })
+
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+           urllib2.HTTPRedirectHandler(),
+           urllib2.HTTPHandler(debuglevel=0),
+           urllib2.HTTPSHandler(debuglevel=0),
+           urllib2.HTTPCookieProcessor(self.cj)
+        )
+
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+
+        self.opener.get_method = lambda: 'POST'
+        
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, request_data)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_delete = False
+        else:
+           self.is_delete = True
+           self.resultdata = data['result']
+           
+class DeleteShowsProgress(object):
+    def __init__(self, token, shows):
+        self.token = token
+        self.shows = shows
+        self.action = 'delete_show_progress'
+        request_data = urllib.urlencode({
+            'access_token' : self.token,
+            'shows' : self.shows
+            })
+
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+           urllib2.HTTPRedirectHandler(),
+           urllib2.HTTPHandler(debuglevel=0),
+           urllib2.HTTPSHandler(debuglevel=0),
+           urllib2.HTTPCookieProcessor(self.cj)
+        )
+
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+
+        self.opener.get_method = lambda: 'POST'
+        
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, request_data)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_delete = False
+        else:
+           self.is_delete = True
+           self.resultdata = data['result']
 
 class SetEmotion(object):
     def __init__(self, token, episode_id, emotion_id):

@@ -282,7 +282,7 @@ def notif(msg, time=5000):
 
 def log(msg):
     xbmc.log("### [%s] - %s" % (__scriptname__, encode(msg), ),
-            level=xbmc.LOGDEBUG) #100 #xbmc.LOGDEBUG
+            level=100) #100 #xbmc.LOGDEBUG
 
 def encode(string):
     result = ''
