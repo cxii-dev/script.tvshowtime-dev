@@ -203,7 +203,7 @@ def getTvshowList():
                 firstSeasonNr = 1
                 firstEpisodeNr = 1
                 for episode in episodes:
-                    if episode['playcount'] == 1:
+                    if episode['playcount'] >= 1:
                         if (episode['season'] > lastSeasonNr):
                             lastSeasonNr = episode['season']
                             lastEpisodeNr = episode['episode']
