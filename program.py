@@ -151,7 +151,7 @@ def scan(way):
         cpt = 1
         pc = 0.0000
         limit = 50
-        total = int(len(test))+int(len(showsNotSeen)) 
+        total = int(len(showsSeen))+int(len(showsNotSeen)) 
         if len(showsSeen): 
             tempShowsSeen = []
             tempcpt = 1
