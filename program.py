@@ -147,31 +147,58 @@ def scan(way):
                 elif tvshowList[i]['seen'] == 0 and tvshowList[i]['season'] == 1 and tvshowList[i]['episode'] == 1:
                     showsNotSeen.append({
                         'show_id': int(tvshowList[i]['show_id'])
-                    })
-        if len(showsSeen):    
+                    })   
+        cpt = 1
+        pc = 0.0000
+        limit = 50
+        total = int(len(test))+int(len(showsNotSeen)) 
+        if len(showsSeen): 
             tempShowsSeen = []
-            tempcpt = 0            
+            tempcpt = 1
+            pDialog.update(0, message=__language__(33908))     
             for showSeen in showsSeen:
+                cpt = cpt + 1
+                pc = (cpt*100)/total
                 tempShowsSeen.append({
                     'show_id': int(showSeen['show_id']),
                     'season': showSeen['season'],
                     'episode': showSeen['episode']
                 })
                 tempcpt = tempcpt + 1
-                if tempcpt >= 50:
+                if tempcpt >= limit:
                     log("SaveShowsProgress(*, %s)" % tempShowsSeen)
                     show_progress = SaveShowsProgress(__token__, json.dumps(tempShowsSeen))
                     log("show_progress.is_set=%s" % show_progress.is_set)
                     tempShowsSeen = []
                     tempcpt = 0 
+                    pDialog.update(pc, message=__language__(33908))
             if tempShowsSeen:
                 log("SaveShowsProgress(*, %s)" % tempShowsSeen)
                 show_progress = SaveShowsProgress(__token__, json.dumps(tempShowsSeen))
                 log("show_progress.is_set=%s" % show_progress.is_set)
         if len(showsNotSeen):
-            log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
-            show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
-            log("show_progress.is_delete=%s" % show_progress.is_delete)
+            tempShowsNotSeen = []
+            tempcpt = 0
+            pDialog.update(0, message=__language__(33908)) 
+            for showNotSeen in showsNotSeen:
+                cpt = cpt + 1
+                pc = (cpt*100)/total
+                tempShowsNotSeen.append({
+                    'show_id': int(showNotSeen['show_id'])
+                })
+                tempcpt = tempcpt + 1
+                if tempcpt >= limit:
+                    log("DeleteShowsProgress(*, %s)" % tempShowsNotSeen)
+                    show_progress = DeleteShowsProgress(__token__, json.dumps(tempShowsNotSeen))
+                    log("show_progress.is_delete=%s" % show_progress.is_delete)
+                    tempShowsNotSeen = []
+                    tempcpt = 0 
+                    cpt = cpt +1
+                    pDialog.update(pc, message=__language__(33908))
+            if tempShowsNotSeen:
+                log("DeleteShowsProgress(*, %s)" % tempShowsNotSeen)
+                show_progress = DeleteShowsProgress(__token__, json.dumps(tempShowsNotSeen))
+                log("show_progress.is_delete=%s" % show_progress.is_delete)
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907))  
     else:

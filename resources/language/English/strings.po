@@ -202,7 +202,7 @@ msgid "Finished"
 msgstr ""
 
 msgctxt "#33908"
-msgid "Sleep 60 secs."
+msgid "Syncing"
 msgstr ""
 
 msgctxt "#33909"
