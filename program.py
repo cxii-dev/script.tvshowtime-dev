@@ -235,7 +235,7 @@ def getTvshowList():
                         'season': firstEpisode['season'],
                         'episode': firstEpisode['episode']
                     })
-                    log('jamais_vu')
+                    log('premier_non_vu=s%.2de%.2d' % (int(firstEpisode['season']), int(firstEpisode['episode'])))
     log('list=%s' % tvshowList)
     return tvshowList
     
