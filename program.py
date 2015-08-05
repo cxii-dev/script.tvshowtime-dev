@@ -149,9 +149,25 @@ def scan(way):
                         'show_id': int(tvshowList[i]['show_id'])
                     })
         if len(showsSeen):    
-            log("SaveShowsProgress(*, %s)" % json.dumps(showsSeen))
-            show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
-            log("show_progress.is_set=%s" % show_progress.is_set)
+            tempShowsSeen = []
+            tempcpt = 0            
+            for showSeen in showsSeen:
+                tempShowsSeen.append({
+                    'show_id': int(showSeen['show_id']),
+                    'season': showSeen['season'],
+                    'episode': showSeen['episode']
+                })
+                tempcpt = tempcpt + 1
+                if tempcpt >= 50:
+                    log("SaveShowsProgress(*, %s)" % tempShowsSeen)
+                    show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+                    log("show_progress.is_set=%s" % show_progress.is_set)
+                    tempShowsSeen = []
+                    tempcpt = 0 
+            if tempShowsSeen:
+                log("SaveShowsProgress(*, %s)" % tempShowsSeen)
+                show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+                log("show_progress.is_set=%s" % show_progress.is_set)
         if len(showsNotSeen):
             log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
             show_progress = DeleteShowsProgress(__token__, json.dumps(showsNotSeen))
