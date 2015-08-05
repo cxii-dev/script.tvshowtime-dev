@@ -160,13 +160,13 @@ def scan(way):
                 tempcpt = tempcpt + 1
                 if tempcpt >= 50:
                     log("SaveShowsProgress(*, %s)" % tempShowsSeen)
-                    show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+                    show_progress = SaveShowsProgress(__token__, json.dumps(tempShowsSeen))
                     log("show_progress.is_set=%s" % show_progress.is_set)
                     tempShowsSeen = []
                     tempcpt = 0 
             if tempShowsSeen:
                 log("SaveShowsProgress(*, %s)" % tempShowsSeen)
-                show_progress = SaveShowsProgress(__token__, json.dumps(showsSeen))
+                show_progress = SaveShowsProgress(__token__, json.dumps(tempShowsSeen))
                 log("show_progress.is_set=%s" % show_progress.is_set)
         if len(showsNotSeen):
             log("DeleteShowsProgress(*, %s)" % json.dumps(showsNotSeen))
