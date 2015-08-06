@@ -130,26 +130,26 @@ def scan(way):
         pDialog = xbmcgui.DialogProgressBG()
         pDialog.create('Kodi > TVShow Time', __language__(33906))
         pDialog.update(0, message=__language__(33906))
-        tvshowList = getTvshowList()
+        tvshowsList = getTvshowList()
         showsSeen = []
         showsNotSeen = []
-        if tvshowList:  
-            total = len(tvshowList)  
-            for i in range(0, total):
-                pDialog.update(((100/total)*(i+1)), message=tvshowList[i]['title'])
-                xbmc.sleep(500)
-                if tvshowList[i]['seen'] == 1:
-                    showsSeen.append({
-                        'show_id': int(tvshowList[i]['show_id']),
-                        'season': tvshowList[i]['season'],
-                        'episode': tvshowList[i]['episode']
-                    })
-                elif tvshowList[i]['seen'] == 0 and tvshowList[i]['season'] == 1 and tvshowList[i]['episode'] == 1:
-                    showsNotSeen.append({
-                        'show_id': int(tvshowList[i]['show_id'])
-                    })   
+        cpt = 0
+        total = len(tvshowsList) 
+        for tvshowList in tvshowsList:
+            pDialog.update(((100/total)*(cpt+1)), message=tvshowList['title'])
+            xbmc.sleep(500)
+            if tvshowList['seen'] == 1:
+                showsSeen.append({
+                    'show_id': int(tvshowList['show_id']),
+                    'season': tvshowList['season'],
+                    'episode': tvshowList['episode']
+                })
+            elif tvshowList['seen'] == 0 and tvshowList['season'] == 1 and tvshowList['episode'] == 1:
+                showsNotSeen.append({
+                    'show_id': int(tvshowList['show_id'])
+                })   
         cpt = 1
-        pc = 0.0000
+        pc = 0
         limit = 50
         total = int(len(showsSeen))+int(len(showsNotSeen)) 
         if len(showsSeen): 
@@ -243,8 +243,8 @@ def getTvshowList():
                 lastSeasonNr = 0
                 lastEpisodeNr = 0
                 firstEpisode = None
-                firstSeasonNr = 1
-                firstEpisodeNr = 1
+                firstSeasonNr = 2
+                firstEpisodeNr = 2
                 for episode in episodes:
                     if episode['playcount'] >= 1:
                         if (episode['season'] > lastSeasonNr):
