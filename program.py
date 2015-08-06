@@ -254,14 +254,11 @@ def getTvshowList():
                         elif (episode['season'] == lastSeasonNr and episode['episode'] > lastEpisodeNr):
                             lastEpisodeNr = episode['episode']
                             lastEpisode = episode
-                    if (episode['season'] <= firstSeasonNr):
-                        log('season=%s (%s)' % (episode['season'], type(episode['season'])))
-                        log('episode=%s (%s)' % (episode['episode'], type(episode['episode'])))
+                    if (episode['season'] < firstSeasonNr):
                         firstSeasonNr = episode['season']
                         firstEpisodeNr = episode['episode']
                         firstEpisode = episode
                     elif (episode['season'] == firstSeasonNr and episode['episode'] < firstEpisodeNr):
-                        log('episode=%s (%s)' % (episode['episode'], type(episode['episode'])))
                         firstEpisodeNr = episode['episode']
                         firstEpisode = episode
                 if lastEpisode != None:
