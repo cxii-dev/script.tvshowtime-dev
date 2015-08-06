@@ -236,7 +236,7 @@ def getTvshowList():
             result = xbmc.executeJSONRPC(rpccmd)
             episodes = json.loads(result)
             log('tvshow=%s [%d]' % (tvshow['title'], int(tvshow['imdbnumber']))) 
-            #log('episodes[%d]=%s' % (tvshow['tvshowid'], episodes)) 
+            log('episodes[%d]=%s' % (tvshow['tvshowid'], episodes)) 
             if episodes.has_key('result') and episodes['result'] != None and episodes['result'].has_key('episodes'):
                 episodes = episodes['result']['episodes']
                 lastEpisode = None
