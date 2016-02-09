@@ -23,6 +23,7 @@ from resources.lib.tvshowtime import Show
 from resources.lib.tvshowtime import GetLibrary
 from resources.lib.tvshowtime import DeleteShowProgress
 from resources.lib.tvshowtime import DeleteShowsProgress
+from resources.lib.tvshowtime import FollowShows
 
 __addon__         = xbmcaddon.Addon()
 __cwd__           = __addon__.getAddonInfo('path')
@@ -134,10 +135,13 @@ def scan(way):
         showsSeen = []
         showsNotSeen = []
         cpt = 0
+        pc = 0
         total = len(tvshowsList) 
         for tvshowList in tvshowsList:
-            pDialog.update(((100/total)*(cpt+1)), message=tvshowList['title'])
-            xbmc.sleep(500)
+            cpt = cpt + 1
+            pc = (cpt*100)/total
+            pDialog.update(pc, message=tvshowList['title'])
+            xbmc.sleep(100)
             if tvshowList['seen'] == 1:
                 showsSeen.append({
                     'show_id': int(tvshowList['show_id']),
@@ -199,6 +203,8 @@ def scan(way):
                 log("DeleteShowsProgress(*, %s)" % tempShowsNotSeen)
                 show_progress = DeleteShowsProgress(__token__, json.dumps(tempShowsNotSeen))
                 log("show_progress.is_delete=%s" % show_progress.is_delete)
+                follow_shows = FollowShows(__token__, json.dumps(tempShowsNotSeen))
+                log("follow_shows.is_follow=%s" % follow_shows.is_follow)
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("Kodi > TVShow Time", __language__(33907))  
     else:
@@ -226,7 +232,7 @@ def getTvshowList():
     rpccmd = json.dumps(rpccmd)
     result = xbmc.executeJSONRPC(rpccmd)
     tvshows = json.loads(result)
-    #log('tvshows=%s' % tvshows)  
+    log('tvshows=%s' % tvshows)  
     tvshowList = []
     if tvshows.has_key('result') and tvshows['result'] != None and tvshows['result'].has_key('tvshows'):
         tvshows = tvshows['result']['tvshows']
@@ -235,8 +241,8 @@ def getTvshowList():
             rpccmd = json.dumps(rpccmd)
             result = xbmc.executeJSONRPC(rpccmd)
             episodes = json.loads(result)
-            log('tvshow=%s [%d]' % (tvshow['title'], int(tvshow['imdbnumber']))) 
-            log('episodes[%d]=%s' % (int(tvshow['imdbnumber']), episodes)) 
+            log('tvshow=%s [%s]' % (tvshow['title'], tvshow['imdbnumber'])) 
+            log('episodes[%s]=%s' % (tvshow['imdbnumber'], episodes)) 
             if episodes.has_key('result') and episodes['result'] != None and episodes['result'].has_key('episodes'):
                 episodes = episodes['result']['episodes']
                 lastEpisode = None
@@ -307,7 +313,7 @@ def setTvshowProgress(show_id, last_season_seen, last_episode_seen):
         return
     tvshows = tvshows['result']['tvshows']
     for tvshow in tvshows:
-        if int(tvshow['imdbnumber']) == int(show_id):
+        if tvshow['imdbnumber'] == int(show_id):
             log('tvshow=%s' % tvshow)
             rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['title', 'season', 'episode']}, 'id': 1}
             rpccmd = json.dumps(rpccmd)

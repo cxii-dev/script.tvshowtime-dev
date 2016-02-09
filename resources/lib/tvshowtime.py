@@ -264,6 +264,76 @@ class SaveProgress(object):
            self.is_set = False
         else:
            self.is_set = True
+           
+class Follow(object):
+    def __init__(self, token, show_id):
+        self.token = token
+        self.show_id = show_id
+        self.action = 'follow'
+        request_data = urllib.urlencode({
+            'access_token' : self.token,
+            'show_id' : self.show_id
+            })
+        
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+            urllib2.HTTPRedirectHandler(),
+            urllib2.HTTPHandler(debuglevel=0),
+            urllib2.HTTPSHandler(debuglevel=0),
+            urllib2.HTTPCookieProcessor(self.cj)
+        )
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+                           
+        self.opener.get_method = lambda: 'POST'
+             
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, request_data)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_follow = False
+        else:
+           self.is_follow = True
+           
+class FollowShows(object):
+    def __init__(self, token, show_id):
+        self.token = token
+        self.show_id = show_id
+        self.action = 'follow'
+        request_data = urllib.urlencode({
+            'access_token' : self.token,
+            'show_id' : self.show_id
+            })
+        
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(
+            urllib2.HTTPRedirectHandler(),
+            urllib2.HTTPHandler(debuglevel=0),
+            urllib2.HTTPSHandler(debuglevel=0),
+            urllib2.HTTPCookieProcessor(self.cj)
+        )
+        self.opener.addheaders = [
+            ('User-agent', 'Lynx/2.8.1pre.9 libwww-FM/2.14')
+        ]
+                           
+        self.opener.get_method = lambda: 'POST'
+             
+        request_url = "%s%s" % (request_uri, self.action)
+        try:
+            response = self.opener.open(request_url, request_data)
+            data = json.loads(''.join(response.readlines()))
+        except:
+            data = None
+        
+        if (data is None) or (data['result'] == "KO"):
+           self.is_follow = False
+        else:
+           self.is_follow = True
 
 class SaveShowProgress(object):
     def __init__(self, token, show_id, season, episode):
