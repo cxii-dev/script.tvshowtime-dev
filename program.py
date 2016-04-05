@@ -126,6 +126,8 @@ def remove_duplicates(values):
     return output
 
 def scan(way):
+    emotion = __addon__.getSetting('emotion')
+    __addon__.setSetting('emotion', 'false')
     if way == 1:
         log('Kodi > TVShow Time')  
         pDialog = xbmcgui.DialogProgressBG()
@@ -224,6 +226,7 @@ def scan(way):
                         tvshowProgress = setTvshowProgress(tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode'])
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907)) 
+    __addon__.setSetting('emotion', emotion)
     pDialog.close() 
         
 def getTvshowList():
