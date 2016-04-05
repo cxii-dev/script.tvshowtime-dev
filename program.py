@@ -222,7 +222,6 @@ def scan(way):
                         pDialog.update(((100/total)*(i+1)), message=tvshowTime['title'])
                         log('setTvshowProgress(%s, %s, %s)' % (tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode']))
                         tvshowProgress = setTvshowProgress(tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode'])
-                        return
         pDialog.update(100, message=__language__(33907))
         xbmcgui.Dialog().ok("TVShow Time > Kodi", __language__(33907)) 
     pDialog.close() 
