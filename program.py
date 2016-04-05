@@ -312,26 +312,25 @@ def setTvshowProgress(show_id, last_season_seen, last_episode_seen):
         return
     tvshows = tvshows['result']['tvshows']
     for tvshow in tvshows:
-        if tvshow['imdbnumber'] == int(show_id):
+        if int(tvshow['imdbnumber']) == int(show_id):
             log('tvshow=%s' % tvshow)
             rpccmd = {'jsonrpc': '2.0', 'method': 'VideoLibrary.GetEpisodes', 'params': {'tvshowid': tvshow['tvshowid'], 'properties': ['title', 'season', 'episode']}, 'id': 1}
             rpccmd = json.dumps(rpccmd)
             result = xbmc.executeJSONRPC(rpccmd)
             episodes = json.loads(result)  
             log('episodes=%s' % episodes)  
-            if episodes['result']['limits']['total'] == 0:
-                return
-            episodes = episodes['result']['episodes']
-            for episode in episodes:
-                log('episode=%s' % episode) 
-                if (episode['season'] <= last_season_seen and episode['episode'] <= last_episode_seen):               
-                    command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 1)
-                    result2 = json.loads(xbmc.executeJSONRPC(command2))
-                    log('watched=%s' % 1)
-                else:         
-                    command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 0)
-                    result2 = json.loads(xbmc.executeJSONRPC(command2))
-                    log('watched=%s' % 0)
+            if episodes['result']['limits']['total'] > 0:
+                episodes = episodes['result']['episodes']
+                for episode in episodes:
+                    log('episode=%s' % episode) 
+                    if (episode['season'] <= last_season_seen and episode['episode'] <= last_episode_seen):               
+                        command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 1)
+                        result2 = json.loads(xbmc.executeJSONRPC(command2))
+                        log('watched=%s' % 1)
+                    else:         
+                        command2 = '{"jsonrpc": "2.0", "id": 1, "method": "VideoLibrary.SetEpisodeDetails", "params": {"episodeid" : %s, "playcount": %s}}' % (episode['episodeid'], 0)
+                        result2 = json.loads(xbmc.executeJSONRPC(command2))
+                        log('watched=%s' % 0)
  
 def formatNumber(number):
     if len(number) < 2:
