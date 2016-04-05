@@ -218,7 +218,7 @@ def scan(way):
             total = len(tvshowList)                                   
             for i in range(0, total):
                 for tvshowTime in tvshowTimeList:
-                    if tvshowList[i]['show_id'] == tvshowTime['show_id']:
+                    if int(tvshowList[i]['show_id']) == int(tvshowTime['show_id']):
                         pDialog.update(((100/total)*(i+1)), message=tvshowTime['title'])
                         log('setTvshowProgress(%s, %s, %s)' % (tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode']))
                         tvshowProgress = setTvshowProgress(tvshowTime['show_id'], tvshowTime['season'], tvshowTime['episode'])
