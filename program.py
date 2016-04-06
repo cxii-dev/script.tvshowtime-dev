@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: unicode -*-
 
 import os
 import re
@@ -356,9 +356,12 @@ def log(msg):
 def encode(string):
     result = ''
     try:
-        result = string.encode('UTF-8','replace')
+        result = string.encode('Unicode','replace')
     except UnicodeDecodeError:
         result = 'Unicode Error'
-    return result         
+    return result
+
+def normalizeString(str):
+    return unicodedata.normalize('NFKD', str).encode('ascii','ignore').encode('Unicode','replace')     
 
 start()
